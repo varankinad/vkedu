@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">vkedu</string>
+
+    <string name="main_title">Явные и неявные Intent</string>
+    <string name="main_subtitle">Одно поле принимает либо текст, либо номер телефона РФ.</string>
+    <string name="main_input_label">Введите текст или номер телефона</string>
+
+    <string name="button_open_second">Открыть вторую Activity</string>
+    <string name="button_call">Позвонить другу</string>
+    <string name="button_share">Поделиться текстом</string>
+    <string name="button_back">Назад</string>
+
+    <string name="second_title">Вторая Activity</string>
+    <string name="no_extra_text">Текст не передан</string>
+
+    <string name="error_empty">Поле не может быть пустым</string>
+    <string name="error_phone">Введите корректный номер телефона РФ (11 цифр)</string>
+    <string name="error_dial_no_app">Не удалось открыть приложение звонков</string>
+    <string name="error_share_no_app">Нет приложения для отправки текста</string>
+    <string name="error_no_text_to_share">Текст для отправки не найден</string>
 </resources>
