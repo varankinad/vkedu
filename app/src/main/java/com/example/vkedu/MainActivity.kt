@@ -20,10 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             VkeduTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+AppDetailsScreen(Modifier.padding (innerPadding))
                 }
             }
         }
