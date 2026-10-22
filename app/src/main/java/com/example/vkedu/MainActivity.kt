@@ -4,13 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.vkedu.presentation.appslist.AppsListScreen
 import com.example.vkedu.ui.theme.VkeduTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +21,43 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             VkeduTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val view = LocalView.current
+                val useDarkStatusBarIcons =
+                    MaterialTheme.colorScheme.primary.luminance() > 0.5f
+                SideEffect {
+                    WindowCompat.getInsetsController(window, view)
+                        .isAppearanceLightStatusBars = useDarkStatusBarIcons
+                }
+
+                val navController = rememberNavController()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = ROUTE_APPS_LIST,
+                ) {
+                    composable(ROUTE_APPS_LIST) {
+                        AppsListScreen(
+                            onAppClick = {
+                                navController.navigate(ROUTE_APP_DETAILS) {
+                                    launchSingleTop = true
+                                }
+                            },
+                        )
+                    }
+                    composable(ROUTE_APP_DETAILS) {
+                        AppDetailsScreen(
+                            onBack = { navController.popBackStack() },
+                            onShowcaseAppClick = {
+                                // Открываем детали выбранного приложения поверх текущих
+                                navController.navigate(ROUTE_APP_DETAILS)
+                            },
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    VkeduTheme {
-        Greeting("Android")
-    }
-}
+private const val ROUTE_APPS_LIST = "apps_list"
+private const val ROUTE_APP_DETAILS = "app_details"

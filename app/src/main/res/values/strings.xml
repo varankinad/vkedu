@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">vkedu</string>
+    <string name="screenshot_title">Скриншоты</string>
+    <string name="showcase_title">Витрина</string>
+    <string name="apps_list_title">MyStore</string>
+    <string name="apps_list_subtitle">Каталог приложений</string>
+    <string name="apps_list_featured">Рекомендуем</string>
+    <string name="apps_list_all">Все приложения</string>
+    <plurals name="apps_count">
+        <item quantity="one">%d приложение</item>
+        <item quantity="few">%d приложения</item>
+        <item quantity="many">%d приложений</item>
+        <item quantity="other">%d приложений</item>
+    </plurals>
 </resources>
