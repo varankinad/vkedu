@@ -6,4 +6,8 @@ data class App(
     val description: String,
     val category: Category,
     val iconUrl: String,
+    val developer: String = "",
+    val size: Float = 0f,
+    val ageRating: Int = 0,
+    val screenshotUrlList: List<String> = emptyList(),
 )
