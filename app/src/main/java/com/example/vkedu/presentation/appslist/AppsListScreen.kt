@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 fun AppsListScreen(
     modifier: Modifier = Modifier,
     appList: List<App> = apps,
+    onAppClick: (App) -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -61,6 +62,7 @@ fun AppsListScreen(
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 5.dp)
                         .animateItem(),
+                    onClick = { onAppClick(app) },
                 )
             }
         }
