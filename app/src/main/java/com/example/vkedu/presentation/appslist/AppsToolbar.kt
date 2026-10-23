@@ -35,8 +35,10 @@ import com.example.vkedu.ui.theme.VkeduTheme
 fun AppsToolbar(
     count: Int,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     Surface(
+        onClick = onClick,
         color = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
         shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp),

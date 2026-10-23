@@ -1,6 +1,6 @@
 package com.example.vkedu.presentation.appslist
 
-internal val apps = listOf(
+internal fun loadApps(): List<App> = listOf(
     App(
         id = "fa2e31b8-1234-4cf7-9914-108a170a1b01",
         name = "QuickNote",

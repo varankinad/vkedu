@@ -13,31 +13,64 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vkedu.R
 import com.example.vkedu.ui.theme.VkeduTheme
-import kotlinx.coroutines.launch
+
+@Composable
+fun AppsListRoute(
+    modifier: Modifier = Modifier,
+    onAppClick: (App) -> Unit = {},
+    viewModel: AppsListViewModel = viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val snackbarMessage = stringResource(R.string.apps_list_toolbar_snackbar)
+
+    LaunchedEffect(viewModel, lifecycleOwner, snackbarHostState, snackbarMessage) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.snackbarEvents.collect {
+                snackbarHostState.showSnackbar(snackbarMessage)
+            }
+        }
+    }
+
+    AppsListScreen(
+        appList = uiState.apps,
+        modifier = modifier,
+        snackbarHostState = snackbarHostState,
+        onToolbarClick = viewModel::onToolbarClick,
+        onAppClick = onAppClick,
+    )
+}
 
 @Composable
 fun AppsListScreen(
+    appList: List<App>,
     modifier: Modifier = Modifier,
-    appList: List<App> = apps,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onToolbarClick: () -> Unit = {},
     onAppClick: (App) -> Unit = {},
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val featuredApps = appList.take(4)
 
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-        topBar = { AppsToolbar(count = appList.size) },
+        topBar = { AppsToolbar(count = appList.size, onClick = onToolbarClick) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         LazyColumn(
@@ -104,6 +137,6 @@ private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
 @Composable
 private fun AppsListScreenPreview() {
     VkeduTheme {
-        AppsListScreen()
+        AppsListScreen(appList = loadApps())
     }
 }

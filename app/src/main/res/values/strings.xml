@@ -6,6 +6,7 @@
     <string name="apps_list_subtitle">Каталог приложений</string>
     <string name="apps_list_featured">Рекомендуем</string>
     <string name="apps_list_all">Все приложения</string>
+    <string name="apps_list_toolbar_snackbar">Добро пожаловать в MyStore</string>
     <plurals name="apps_count">
         <item quantity="one">%d приложение</item>
         <item quantity="few">%d приложения</item>

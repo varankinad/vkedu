@@ -12,7 +12,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.vkedu.presentation.appslist.AppsListScreen
+import com.example.vkedu.presentation.appslist.AppsListRoute
 import com.example.vkedu.ui.theme.VkeduTheme
 
 class MainActivity : ComponentActivity() {
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     startDestination = ROUTE_APPS_LIST,
                 ) {
                     composable(ROUTE_APPS_LIST) {
-                        AppsListScreen(
+                        AppsListRoute(
                             onAppClick = {
                                 navController.navigate(ROUTE_APP_DETAILS) {
                                     launchSingleTop = true
