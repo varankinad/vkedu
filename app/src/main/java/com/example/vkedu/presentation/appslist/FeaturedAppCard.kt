@@ -25,6 +25,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.vkedu.domain.model.App
+import com.example.vkedu.domain.model.Category
 import com.example.vkedu.ui.theme.VkeduTheme
 
 @Composable
@@ -121,7 +123,7 @@ private fun FeaturedAppCardPreview() {
                 id = "preview",
                 name = "QuickNote",
                 description = "Быстрые заметки с синхронизацией.",
-                category = Category.UTILITIES,
+                category = Category(key = "UTILITIES", title = "Утилиты"),
                 iconUrl = "",
             )
         )

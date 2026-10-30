@@ -27,7 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.example.vkedu.presentation.appslist.App
+import com.example.vkedu.domain.model.App
+import com.example.vkedu.domain.model.Category
 import com.example.vkedu.presentation.appslist.AppListItem
 import com.example.vkedu.ui.theme.VkeduTheme
 
@@ -87,63 +88,63 @@ private val showcaseApps = listOf(
         id = "showcase-1",
         name = "QuickNote",
         description = "Быстрые заметки с синхронизацией.",
-        category = com.example.vkedu.presentation.appslist.Category.UTILITIES,
+        category = Category(key = "UTILITIES", title = "Утилиты"),
         iconUrl = "",
     ),
     App(
         id = "showcase-2",
         name = "Calmalist",
         description = "Планировщик задач и привычек.",
-        category = com.example.vkedu.presentation.appslist.Category.PRODUCTIVITY,
+        category = Category(key = "PRODUCTIVITY", title = "Производительность"),
         iconUrl = "",
     ),
     App(
         id = "showcase-3",
         name = "FitRiver",
         description = "Тренировки, шагомер и дневник.",
-        category = com.example.vkedu.presentation.appslist.Category.HEALTH,
+        category = Category(key = "HEALTH", title = "Здоровье"),
         iconUrl = "",
     ),
     App(
         id = "showcase-4",
         name = "TaskLoop",
         description = "Канбан-доски и таймер фокуса.",
-        category = com.example.vkedu.presentation.appslist.Category.PRODUCTIVITY,
+        category = Category(key = "PRODUCTIVITY", title = "Производительность"),
         iconUrl = "",
     ),
     App(
         id = "showcase-5",
         name = "Pixtrix",
         description = "Редактор фото с пресетами.",
-        category = com.example.vkedu.presentation.appslist.Category.PHOTOGRAPHY,
+        category = Category(key = "PHOTOGRAPHY", title = "Фотография"),
         iconUrl = "",
     ),
     App(
         id = "showcase-6",
         name = "TinyChef",
         description = "Простые рецепты и списки покупок.",
-        category = com.example.vkedu.presentation.appslist.Category.FOOD,
+        category = Category(key = "FOOD", title = "Еда"),
         iconUrl = "",
     ),
     App(
         id = "showcase-7",
         name = "GymMate",
         description = "Личный тренер: программы и прогресс.",
-        category = com.example.vkedu.presentation.appslist.Category.SPORTS,
+        category = Category(key = "SPORTS", title = "Спорт"),
         iconUrl = "",
     ),
     App(
         id = "showcase-8",
         name = "FlowCard",
         description = "Учёт бюджетов и отчёты.",
-        category = com.example.vkedu.presentation.appslist.Category.FINANCE,
+        category = Category(key = "FINANCE", title = "Финансы"),
         iconUrl = "",
     ),
     App(
         id = "showcase-9",
         name = "DreamSafe",
         description = "Дневник снов и медитации.",
-        category = com.example.vkedu.presentation.appslist.Category.HEALTH,
+        category = Category(key = "HEALTH", title = "Здоровье"),
         iconUrl = "",
     ),
 )
