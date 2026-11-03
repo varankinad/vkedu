@@ -32,14 +32,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vkedu.R
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.presentation.viewmodel.AppsViewModel
-import com.example.vkedu.presentation.viewmodel.AppsViewModelFactory
 import com.example.vkedu.ui.theme.VkeduTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun AppsListScreen(
     modifier: Modifier = Modifier,
-    viewModel: AppsViewModel = viewModel(factory = AppsViewModelFactory()),
+    viewModel: AppsViewModel = viewModel(),
     onAppClick: (App) -> Unit = {},
 ) {
     val appsResult by viewModel.apps.collectAsStateWithLifecycle()

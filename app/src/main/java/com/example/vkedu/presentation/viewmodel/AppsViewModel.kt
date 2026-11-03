@@ -5,12 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.domain.model.Category
 import com.example.vkedu.domain.repository.AppRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.Result
+import javax.inject.Inject
 
-class AppsViewModel(
+@HiltViewModel
+class AppsViewModel @Inject constructor(
     private val appRepository: AppRepository
 ) : ViewModel() {
 
