@@ -31,13 +31,19 @@ class AppsViewModel @Inject constructor(
     }
 
     fun loadData() {
+        if (_isLoading.value) return
+
+        _isLoading.value = true
         viewModelScope.launch {
-            _isLoading.value = true
-            val appsResult = appRepository.getApps()
-            val categoriesResult = appRepository.getCategories()
-            _apps.value = appsResult
-            _categories.value = categoriesResult
-            _isLoading.value = false
+            try {
+                val appsResult = appRepository.getApps()
+                _apps.value = appsResult
+                _categories.value = appsResult.map { apps ->
+                    apps.map { it.category }.distinctBy { it.key }
+                }
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 

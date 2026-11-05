@@ -3,85 +3,108 @@ package com.example.vkedu.presentation.appslist
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vkedu.R
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.presentation.viewmodel.AppsViewModel
 import com.example.vkedu.ui.theme.VkeduTheme
-import kotlinx.coroutines.launch
 
 @Composable
 fun AppsListScreen(
     modifier: Modifier = Modifier,
-    viewModel: AppsViewModel = viewModel(),
+    viewModel: AppsViewModel = hiltViewModel(),
     onAppClick: (App) -> Unit = {},
 ) {
     val appsResult by viewModel.apps.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
-    val appList = appsResult.getOrNull() ?: emptyList()
+    AppsListContent(
+        appList = appsResult.getOrNull().orEmpty(),
+        isLoading = isLoading,
+        hasError = appsResult.isFailure,
+        onRetry = viewModel::loadData,
+        onAppClick = onAppClick,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun AppsListContent(
+    appList: List<App>,
+    isLoading: Boolean,
+    hasError: Boolean,
+    onRetry: () -> Unit,
+    onAppClick: (App) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val featuredApps = appList.take(4)
 
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         topBar = { AppsToolbar(count = appList.size) },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
-        if (isLoading && appList.isEmpty()) {
-            LoadingIndicator(modifier = Modifier.padding(innerPadding))
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding),
-                contentPadding = PaddingValues(bottom = 28.dp),
-            ) {
-                item(key = "featured_row") {
-                    FeaturedAppsRow(
-                        apps = featuredApps,
-                    )
-                }
-                item(key = "all_header") {
-                    SectionHeader(
-                        title = stringResource(R.string.apps_list_all),
-                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 12.dp),
-                    )
-                }
-                items(appList, key = { app -> app.id }) { app ->
-                    AppListItem(
-                        app = app,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 5.dp)
-                            .animateItem(),
-                        onClick = { onAppClick(app) },
-                    )
+        when {
+            isLoading && appList.isEmpty() -> {
+                LoadingIndicator(modifier = Modifier.padding(innerPadding))
+            }
+            hasError && appList.isEmpty() -> {
+                LoadError(
+                    onRetry = onRetry,
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.padding(innerPadding),
+                    contentPadding = PaddingValues(bottom = 28.dp),
+                ) {
+                    item(key = "featured_row") {
+                        FeaturedAppsRow(apps = featuredApps)
+                    }
+                    item(key = "all_header") {
+                        SectionHeader(
+                            title = stringResource(R.string.apps_list_all),
+                            modifier = Modifier.padding(
+                                start = 20.dp,
+                                end = 20.dp,
+                                top = 28.dp,
+                                bottom = 12.dp,
+                            ),
+                        )
+                    }
+                    items(appList, key = { app -> app.id }) { app ->
+                        AppListItem(
+                            app = app,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 5.dp)
+                                .animateItem(),
+                            onClick = { onAppClick(app) },
+                        )
+                    }
                 }
             }
         }
@@ -101,6 +124,30 @@ private fun LoadingIndicator(modifier: Modifier = Modifier) {
             modifier = Modifier.size(48.dp),
             strokeWidth = 4.dp,
         )
+    }
+}
+
+@Composable
+private fun LoadError(
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = stringResource(R.string.apps_load_error),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = onRetry) {
+            Text(text = stringResource(R.string.retry))
+        }
     }
 }
 
@@ -139,6 +186,12 @@ private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
 @Composable
 private fun AppsListScreenPreview() {
     VkeduTheme {
-        AppsListScreen()
+        AppsListContent(
+            appList = emptyList(),
+            isLoading = false,
+            hasError = false,
+            onRetry = {},
+            onAppClick = {},
+        )
     }
 }
