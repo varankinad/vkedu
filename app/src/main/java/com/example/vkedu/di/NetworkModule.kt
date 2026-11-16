@@ -1,6 +1,7 @@
 package com.example.vkedu.di
 
 import com.example.vkedu.data.remote.api.CatalogApi
+import com.example.vkedu.data.remote.api.CatalogHttpApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,7 +35,17 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCatalogApi(retrofit: Retrofit): CatalogApi {
-        return retrofit.create(CatalogApi::class.java)
+    fun provideCatalogHttpApi(retrofit: Retrofit): CatalogHttpApi {
+        return retrofit.create(CatalogHttpApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCatalogApi(httpApi: CatalogHttpApi): CatalogApi {
+        return object : CatalogApi {
+            override suspend fun getCatalog() = httpApi.getCatalog()
+
+            override suspend fun getAppDetail(id: String) = httpApi.getAppDetail(id)
+        }
     }
 }

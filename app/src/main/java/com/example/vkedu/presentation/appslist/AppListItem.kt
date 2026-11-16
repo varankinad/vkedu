@@ -1,6 +1,5 @@
 package com.example.vkedu.presentation.appslist
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.vkedu.R
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.domain.model.Category
 import com.example.vkedu.ui.theme.VkeduTheme
@@ -32,6 +33,7 @@ import com.example.vkedu.ui.theme.VkeduTheme
 fun AppListItem(
     app: App,
     modifier: Modifier = Modifier,
+    rating: Float? = null,
     onClick: () -> Unit = {},
 ) {
     Surface(
@@ -71,6 +73,14 @@ fun AppListItem(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
+                if (rating != null) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.app_user_rating, rating),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
                 Spacer(Modifier.height(12.dp))
                 CategoryBadge(category = app.category)
             }

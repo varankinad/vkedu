@@ -1,5 +1,6 @@
 package com.example.vkedu
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,10 +10,14 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.vkedu.presentation.appslist.AppsListScreen
+import com.example.vkedu.presentation.viewmodel.AppDetailsViewModel
 import com.example.vkedu.ui.theme.VkeduTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,19 +44,22 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(ROUTE_APPS_LIST) {
                         AppsListScreen(
-                            onAppClick = {
-                                navController.navigate(ROUTE_APP_DETAILS) {
+                            onAppClick = { app ->
+                                navController.navigate("$ROUTE_APP_DETAILS/${Uri.encode(app.id)}") {
                                     launchSingleTop = true
                                 }
                             },
                         )
                     }
-                    composable(ROUTE_APP_DETAILS) {
+                    composable(
+                        route = "$ROUTE_APP_DETAILS/{appId}",
+                        arguments = listOf(navArgument("appId") { type = NavType.StringType }),
+                    ) { backStackEntry ->
                         AppDetailsScreen(
+                            viewModel = hiltViewModel<AppDetailsViewModel>(backStackEntry),
                             onBack = { navController.popBackStack() },
-                            onShowcaseAppClick = {
-                                // Открываем детали выбранного приложения поверх текущих
-                                navController.navigate(ROUTE_APP_DETAILS)
+                            onShowcaseAppClick = { app ->
+                                navController.navigate("$ROUTE_APP_DETAILS/${Uri.encode(app.id)}")
                             },
                         )
                     }

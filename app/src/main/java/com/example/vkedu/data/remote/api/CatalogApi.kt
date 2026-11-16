@@ -2,13 +2,15 @@ package com.example.vkedu.data.remote.api
 
 import com.example.vkedu.data.remote.dto.AppDetailDto
 import com.example.vkedu.data.remote.dto.CatalogAppDto
-import retrofit2.http.GET
-import retrofit2.http.Path
+import kotlinx.coroutines.delay
 
 interface CatalogApi {
-    @GET("catalog")
     suspend fun getCatalog(): List<CatalogAppDto>
 
-    @GET("catalog/{id}")
-    suspend fun getAppDetail(@Path("id") id: String): AppDetailDto
+    suspend fun getAppDetail(id: String): AppDetailDto
+
+    suspend fun getRating(id: String): Float {
+        delay(1500)
+        return (30..50).random() / 10f
+    }
 }

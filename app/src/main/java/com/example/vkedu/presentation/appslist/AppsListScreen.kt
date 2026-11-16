@@ -5,16 +5,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +33,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.vkedu.R
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.presentation.viewmodel.AppsViewModel
+import com.example.vkedu.presentation.viewmodel.RatingsLoadingMode
+import com.example.vkedu.presentation.viewmodel.RatingsState
 import com.example.vkedu.ui.theme.VkeduTheme
 
 @Composable
@@ -40,6 +45,7 @@ fun AppsListScreen(
 ) {
     val appsResult by viewModel.apps.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val ratingsState by viewModel.ratingsState.collectAsStateWithLifecycle()
 
     AppsListContent(
         appList = appsResult.getOrNull().orEmpty(),
@@ -47,18 +53,22 @@ fun AppsListScreen(
         hasError = appsResult.isFailure,
         onRetry = viewModel::loadData,
         onAppClick = onAppClick,
+        ratingsState = ratingsState,
+        onCompareRatings = viewModel::compareRatings,
         modifier = modifier,
     )
 }
 
 @Composable
-private fun AppsListContent(
+internal fun AppsListContent(
     appList: List<App>,
     isLoading: Boolean,
     hasError: Boolean,
     onRetry: () -> Unit,
     onAppClick: (App) -> Unit,
     modifier: Modifier = Modifier,
+    ratingsState: RatingsState = RatingsState(),
+    onCompareRatings: () -> Unit = {},
 ) {
     val featuredApps = appList.take(4)
 
@@ -82,8 +92,19 @@ private fun AppsListContent(
                     modifier = Modifier.padding(innerPadding),
                     contentPadding = PaddingValues(bottom = 28.dp),
                 ) {
+                    item(key = "ratings_comparison") {
+                        RatingsComparison(
+                            state = ratingsState,
+                            idCount = ratingsState.idCount.takeIf { it > 0 }
+                                ?: appList.distinctBy { it.id }.size,
+                            enabled = !isLoading && !hasError && appList.isNotEmpty()
+                                && ratingsState.loadingMode == null,
+                            onCompareRatings = onCompareRatings,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        )
+                    }
                     item(key = "featured_row") {
-                        FeaturedAppsRow(apps = featuredApps)
+                        FeaturedAppsRow(apps = featuredApps, ratings = ratingsState.ratings)
                     }
                     item(key = "all_header") {
                         SectionHeader(
@@ -103,9 +124,65 @@ private fun AppsListContent(
                                 .padding(horizontal = 16.dp, vertical = 5.dp)
                                 .animateItem(),
                             onClick = { onAppClick(app) },
+                            rating = ratingsState.ratings[app.id],
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RatingsComparison(
+    state: RatingsState,
+    idCount: Int,
+    enabled: Boolean,
+    onCompareRatings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Button(
+                onClick = onCompareRatings,
+                enabled = enabled,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = stringResource(R.string.compare_ratings),
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Text(stringResource(R.string.ratings_id_count, idCount))
+            when (state.loadingMode) {
+                RatingsLoadingMode.Sequential -> Text(stringResource(R.string.ratings_loading_sequential))
+                RatingsLoadingMode.Parallel -> Text(stringResource(R.string.ratings_loading_parallel))
+                null -> Unit
+            }
+            Text(
+                state.sequentialTimeMillis?.let { stringResource(R.string.ratings_sequential_time, it) }
+                    ?: stringResource(R.string.ratings_sequential_pending),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text(
+                state.parallelTimeMillis?.let { stringResource(R.string.ratings_parallel_time, it) }
+                    ?: stringResource(R.string.ratings_parallel_pending),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            if (state.hasError) {
+                Text(
+                    stringResource(R.string.ratings_load_error),
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
         }
     }
@@ -155,6 +232,7 @@ private fun LoadError(
 private fun FeaturedAppsRow(
     apps: List<App>,
     modifier: Modifier = Modifier,
+    ratings: Map<String, Float> = emptyMap(),
 ) {
     Column(modifier = modifier) {
         SectionHeader(
@@ -166,7 +244,7 @@ private fun FeaturedAppsRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(apps, key = { app -> app.id }) { app ->
-                FeaturedAppCard(app = app)
+                FeaturedAppCard(app = app, rating = ratings[app.id])
             }
         }
     }
