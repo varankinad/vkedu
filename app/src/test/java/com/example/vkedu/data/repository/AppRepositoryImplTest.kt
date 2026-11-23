@@ -5,6 +5,8 @@ import com.example.vkedu.data.remote.api.CatalogHttpApi
 import com.example.vkedu.data.remote.dto.AppDetailDto
 import com.example.vkedu.data.remote.dto.CatalogAppDto
 import com.example.vkedu.di.NetworkModule
+import com.example.vkedu.domain.model.App
+import com.example.vkedu.domain.model.Category
 import java.io.IOException
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -28,6 +30,135 @@ import org.junit.Test
 class AppRepositoryImplTest {
     private val ids = List(14) { "app-$it" }
     private val ratings = ids.mapIndexed { index, id -> id to (30 + index) / 10f }.toMap()
+    private val catalog = listOf(
+        CatalogAppDto(
+            id = "beta",
+            name = "Beta app",
+            description = "Beta description",
+            category = "TOOLS",
+            iconUrl = "https://example.test/beta.png",
+        ),
+        CatalogAppDto(
+            id = "alpha",
+            name = "Alpha app",
+            description = "Alpha description",
+            category = "GAMES",
+            iconUrl = "https://example.test/alpha.png",
+        ),
+        CatalogAppDto(
+            id = "gamma",
+            name = "Gamma app",
+            description = "Gamma description",
+            category = "TOOLS",
+            iconUrl = "https://example.test/gamma.png",
+        ),
+    )
+
+    @Test
+    fun getAppsMapsCatalogAndPreservesApiOrder() = runTest {
+        val api = StubCatalogApi(catalog = catalog)
+
+        val result = AppRepositoryImpl(api).getApps()
+
+        assertEquals(
+            listOf(
+                App(
+                    id = "beta",
+                    name = "Beta app",
+                    description = "Beta description",
+                    category = Category("TOOLS", "TOOLS"),
+                    iconUrl = "https://example.test/beta.png",
+                ),
+                App(
+                    id = "alpha",
+                    name = "Alpha app",
+                    description = "Alpha description",
+                    category = Category("GAMES", "GAMES"),
+                    iconUrl = "https://example.test/alpha.png",
+                ),
+                App(
+                    id = "gamma",
+                    name = "Gamma app",
+                    description = "Gamma description",
+                    category = Category("TOOLS", "TOOLS"),
+                    iconUrl = "https://example.test/gamma.png",
+                ),
+            ),
+            result.getOrThrow(),
+        )
+        assertEquals(1, api.catalogCalls)
+        assertTrue(api.detailIds.isEmpty())
+    }
+
+    @Test
+    fun getAppsReturnsSuccessfulEmptyListForEmptyCatalog() = runTest {
+        val api = StubCatalogApi()
+
+        val result = AppRepositoryImpl(api).getApps()
+
+        assertEquals(emptyList<App>(), result.getOrThrow())
+        assertEquals(1, api.catalogCalls)
+    }
+
+    @Test
+    fun getCategoriesRemovesDuplicatesAndPreservesFirstAppearanceOrder() = runTest {
+        val api = StubCatalogApi(catalog = catalog)
+
+        val result = AppRepositoryImpl(api).getCategories()
+
+        assertEquals(
+            listOf(Category("TOOLS", "TOOLS"), Category("GAMES", "GAMES")),
+            result.getOrThrow(),
+        )
+        assertEquals(1, api.catalogCalls)
+        assertTrue(api.detailIds.isEmpty())
+    }
+
+    @Test
+    fun getCategoriesReturnsSuccessfulEmptyListForEmptyCatalog() = runTest {
+        val api = StubCatalogApi()
+
+        val result = AppRepositoryImpl(api).getCategories()
+
+        assertEquals(emptyList<Category>(), result.getOrThrow())
+        assertEquals(1, api.catalogCalls)
+    }
+
+    @Test
+    fun getAppByIdDelegatesOriginalIdAndMapsAllDetailFields() = runTest {
+        val requestedId = "app/with spaces"
+        val detail = AppDetailDto(
+            id = "returned-app",
+            name = "Detailed app",
+            developer = "App developer",
+            category = "EDUCATION",
+            description = "Full description",
+            iconUrl = "https://example.test/icon.png",
+            ageRating = 12,
+            size = 43.75f,
+            screenshotUrlList = listOf("https://example.test/second.png", "https://example.test/first.png"),
+        )
+        val api = StubCatalogApi(detail = detail)
+
+        val result = AppRepositoryImpl(api).getAppById(requestedId)
+
+        assertEquals(
+            App(
+                id = "returned-app",
+                name = "Detailed app",
+                description = "Full description",
+                category = Category("EDUCATION", "EDUCATION"),
+                iconUrl = "https://example.test/icon.png",
+                developer = "App developer",
+                size = 43.75f,
+                ageRating = 12,
+                screenshotUrlList = listOf("https://example.test/second.png", "https://example.test/first.png"),
+            ),
+            result.getOrThrow(),
+        )
+        assertEquals(listOf(requestedId), api.detailIds)
+        assertEquals(0, api.catalogCalls)
+    }
 
     @Test
     fun sequentialRequestsFollowInputOrderWithOneActiveRequestAndAccumulateDelay() = runTest {
@@ -331,6 +462,25 @@ class AppRepositoryImplTest {
         override suspend fun getCatalog(): List<CatalogAppDto> = throw failure
 
         override suspend fun getAppDetail(id: String): AppDetailDto = throw failure
+    }
+
+    private class StubCatalogApi(
+        private val catalog: List<CatalogAppDto> = emptyList(),
+        private val detail: AppDetailDto? = null,
+    ) : NoHttpCatalogApi() {
+        var catalogCalls = 0
+            private set
+        val detailIds = mutableListOf<String>()
+
+        override suspend fun getCatalog(): List<CatalogAppDto> {
+            catalogCalls++
+            return catalog
+        }
+
+        override suspend fun getAppDetail(id: String): AppDetailDto {
+            detailIds += id
+            return checkNotNull(detail)
+        }
     }
 
     private class RecordingCatalogApi(

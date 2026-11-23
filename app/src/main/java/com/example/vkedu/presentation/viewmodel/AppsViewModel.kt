@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.domain.model.Category
-import com.example.vkedu.domain.repository.AppRepository
+import com.example.vkedu.domain.usecase.GetAppsUseCase
+import com.example.vkedu.domain.usecase.LoadRatingsInParallelUseCase
+import com.example.vkedu.domain.usecase.LoadRatingsSequentiallyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
@@ -20,7 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val appRepository: AppRepository
+    private val getAppsUseCase: GetAppsUseCase,
+    private val loadRatingsSequentiallyUseCase: LoadRatingsSequentiallyUseCase,
+    private val loadRatingsInParallelUseCase: LoadRatingsInParallelUseCase,
 ) : ViewModel() {
 
     private val _apps = MutableStateFlow<Result<List<App>>>(Result.success(emptyList()))
@@ -49,7 +53,7 @@ class AppsViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val appsResult = appRepository.getApps()
+                val appsResult = getAppsUseCase()
                 _apps.value = appsResult
                 _categories.value = appsResult.map { apps ->
                     apps.map { it.category }.distinctBy { it.key }
@@ -81,7 +85,7 @@ class AppsViewModel @Inject constructor(
             try {
                 lateinit var sequentialRatings: Map<String, Float>
                 val sequentialTime = measureTimeMillis {
-                    sequentialRatings = appRepository.loadRatingsSequentially(ids)
+                    sequentialRatings = loadRatingsSequentiallyUseCase(ids)
                 }
                 coroutineContext.ensureActive()
                 _ratingsState.update { state ->
@@ -94,7 +98,7 @@ class AppsViewModel @Inject constructor(
 
                 lateinit var parallelRatings: Map<String, Float>
                 val parallelTime = measureTimeMillis {
-                    parallelRatings = appRepository.loadRatingsInParallel(ids)
+                    parallelRatings = loadRatingsInParallelUseCase(ids)
                 }
                 coroutineContext.ensureActive()
                 _ratingsState.update { state ->

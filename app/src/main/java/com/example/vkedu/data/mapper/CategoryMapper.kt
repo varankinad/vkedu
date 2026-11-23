@@ -10,3 +10,7 @@ fun CategoryDto.toDomain(): Category {
 fun List<CategoryDto>.toDomainList(): List<Category> {
     return map { it.toDomain() }
 }
+
+fun Category.toDto(): CategoryDto {
+    return CategoryDto(key = key, title = title)
+}

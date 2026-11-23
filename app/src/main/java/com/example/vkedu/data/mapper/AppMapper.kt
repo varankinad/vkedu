@@ -32,3 +32,27 @@ fun AppDetailDto.toDomain(): App {
         screenshotUrlList = screenshotUrlList,
     )
 }
+
+fun App.toCatalogDto(): CatalogAppDto {
+    return CatalogAppDto(
+        id = id,
+        name = name,
+        description = description,
+        category = category.key,
+        iconUrl = iconUrl,
+    )
+}
+
+fun App.toDetailDto(): AppDetailDto {
+    return AppDetailDto(
+        id = id,
+        name = name,
+        description = description,
+        category = category.key,
+        iconUrl = iconUrl,
+        developer = developer,
+        size = size,
+        ageRating = ageRating,
+        screenshotUrlList = screenshotUrlList,
+    )
+}

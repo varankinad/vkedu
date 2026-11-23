@@ -35,6 +35,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.domain.model.Category
 import com.example.vkedu.domain.repository.AppRepository
+import com.example.vkedu.domain.usecase.GetAppByIdUseCase
 import com.example.vkedu.presentation.appslist.AppListItem
 import com.example.vkedu.presentation.appslist.AppsListContent
 import com.example.vkedu.presentation.appslist.FeaturedAppCard
@@ -71,7 +72,10 @@ class AppScreensTest {
         val store = ViewModelStore()
         lateinit var viewModel: AppDetailsViewModel
         compose.runOnUiThread {
-            viewModel = AppDetailsViewModel(DetailsRepository(app), SavedStateHandle(mapOf("appId" to app.id)))
+            viewModel = AppDetailsViewModel(
+                GetAppByIdUseCase(DetailsRepository(app)),
+                SavedStateHandle(mapOf("appId" to app.id)),
+            )
             store.put("details", viewModel)
         }
         try {

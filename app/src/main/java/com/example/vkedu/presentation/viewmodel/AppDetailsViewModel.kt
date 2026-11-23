@@ -3,7 +3,7 @@ package com.example.vkedu.presentation.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vkedu.domain.repository.AppRepository
+import com.example.vkedu.domain.usecase.GetAppByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppDetailsViewModel @Inject constructor(
-    private val appRepository: AppRepository,
+    private val getAppByIdUseCase: GetAppByIdUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val appId: String? = savedStateHandle["appId"]
@@ -43,7 +43,7 @@ class AppDetailsViewModel @Inject constructor(
         _state.value = AppDetailsState.Loading
         viewModelScope.launch {
             try {
-                _state.value = AppDetailsState.Content(appRepository.getAppById(id).getOrThrow())
+                _state.value = AppDetailsState.Content(getAppByIdUseCase(id).getOrThrow())
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

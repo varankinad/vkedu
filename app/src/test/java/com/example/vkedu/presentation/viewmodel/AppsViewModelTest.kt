@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModelStore
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.domain.model.Category
 import com.example.vkedu.domain.repository.AppRepository
+import com.example.vkedu.domain.usecase.GetAppsUseCase
+import com.example.vkedu.domain.usecase.LoadRatingsInParallelUseCase
+import com.example.vkedu.domain.usecase.LoadRatingsSequentiallyUseCase
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -749,7 +752,11 @@ class AppsViewModelTest {
     }
 
     private fun createViewModel(repository: AppRepository): AppsViewModel =
-        AppsViewModel(repository).also { viewModelStore.put("apps", it) }
+        AppsViewModel(
+            GetAppsUseCase(repository),
+            LoadRatingsSequentiallyUseCase(repository),
+            LoadRatingsInParallelUseCase(repository),
+        ).also { viewModelStore.put("apps", it) }
 
     private fun assertSuccessfulComparison(state: RatingsState, expectedRatings: Map<String, Float>) {
         assertEquals(expectedRatings, state.ratings)

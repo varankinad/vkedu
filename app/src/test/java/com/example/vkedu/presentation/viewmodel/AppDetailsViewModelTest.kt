@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelStore
 import com.example.vkedu.domain.model.App
 import com.example.vkedu.domain.model.Category
 import com.example.vkedu.domain.repository.AppRepository
+import com.example.vkedu.domain.usecase.GetAppByIdUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -479,7 +480,7 @@ class AppDetailsViewModelTest {
         appId: String? = app.id,
     ): AppDetailsViewModel {
         val initialState = if (appId == null) emptyMap() else mapOf("appId" to appId)
-        return AppDetailsViewModel(repository, SavedStateHandle(initialState)).also {
+        return AppDetailsViewModel(GetAppByIdUseCase(repository), SavedStateHandle(initialState)).also {
             viewModelStore.put("app-details-${nextViewModelId++}", it)
         }
     }
