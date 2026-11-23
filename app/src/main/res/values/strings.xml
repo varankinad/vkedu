@@ -1,3 +1,34 @@
 <resources>
     <string name="app_name">vkedu</string>
+    <string name="screenshot_title">Скриншоты</string>
+    <string name="showcase_title">Витрина</string>
+    <string name="apps_list_title">MyStore</string>
+    <string name="apps_list_subtitle">Каталог приложений</string>
+    <string name="apps_list_featured">Рекомендуем</string>
+    <string name="apps_list_all">Все приложения</string>
+    <string name="apps_load_error">Не удалось загрузить каталог</string>
+    <string name="retry">Повторить</string>
+    <string name="back">Назад</string>
+    <string name="app_details_loading">Загрузка приложения</string>
+    <string name="app_details_load_error">Не удалось загрузить приложение</string>
+    <string name="install_app">Установить</string>
+    <string name="cancel_install">Отменить</string>
+    <string name="install_progress">%1$d%%</string>
+    <string name="app_screenshot">Скриншот %1$d</string>
+    <string name="compare_ratings">Сравнить загрузку рейтингов</string>
+    <string name="ratings_id_count">Количество ID: %1$d</string>
+    <string name="ratings_loading_sequential">Последовательная загрузка рейтингов</string>
+    <string name="ratings_loading_parallel">Параллельная загрузка рейтингов</string>
+    <string name="ratings_sequential_time">Последовательно: %1$d мс</string>
+    <string name="ratings_parallel_time">Параллельно: %1$d мс</string>
+    <string name="ratings_sequential_pending">Последовательно: ещё не измерено</string>
+    <string name="ratings_parallel_pending">Параллельно: ещё не измерено</string>
+    <string name="ratings_load_error">Не удалось загрузить рейтинги. Повторите сравнение.</string>
+    <string name="app_user_rating">Рейтинг: %1$.1f</string>
+    <plurals name="apps_count">
+        <item quantity="one">%d приложение</item>
+        <item quantity="few">%d приложения</item>
+        <item quantity="many">%d приложений</item>
+        <item quantity="other">%d приложений</item>
+    </plurals>
 </resources>
